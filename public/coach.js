@@ -82,14 +82,14 @@
     const rows = sortPlayers(A.players).map((p) => {
       const cells = TESTS.map((t) => {
         const d = p.tests[t.k], b = p.bands[t.k];
-        if (!d || d.value == null) return `<td class="tc na">—</td>`;
-        return `<td class="tc b-${b.key}"><b>${esc(d.display)}</b><span>${b.name}</span></td>`;
+        if (!d || d.value == null) return `<td class="tc na" data-label="${t.short}">—</td>`;
+        return `<td class="tc b-${b.key}" data-label="${t.short}"><b>${esc(d.display)}</b><span>${b.name}</span></td>`;
       }).join("");
       const g = p.goal;
       return `<tr><td class="pn"><b>${esc(p.name)}</b></td>${cells}
-        <td class="ty">${esc(p.type.name)}</td>
-        <td class="fo">${p.focus ? `<b>${p.focus}</b><span>${g.name}</span>` : "—"}</td>
-        <td class="go">${g ? `${esc(g.now)} → <b>${esc(g.target)}</b>` : "—"}</td></tr>`;
+        <td class="ty" data-label="Athlete type">${esc(p.type.name)}</td>
+        <td class="fo" data-label="Focus">${p.focus ? `<b>${p.focus}</b><span>${g.name}</span>` : "—"}</td>
+        <td class="go" data-label="Retest goal">${g ? `${esc(g.now)} → <b>${esc(g.target)}</b>` : "—"}</td></tr>`;
     }).join("");
 
     // ---- training focus
@@ -179,7 +179,9 @@
       </section>
 
       <section class="csec results">
-        <div class="sech"><h2>Squad results</h2><span>Click a column to sort. Tests sort best first.</span></div>
+        <div class="sech"><h2>Squad results</h2><span class="sorthint">Click a column to sort. Tests sort best first.</span>
+          <label class="msort">Sort by <select id="msort">${[["name", "First name"], ...TESTS.map((t) => [t.k, t.name + " (best first)"]), ["type", "Athlete type"], ["focus", "Focus"]]
+            .map(([k, l]) => `<option value="${k}" ${sortKey === k ? "selected" : ""}>${l}</option>`).join("")}</select></label></div>
         <div class="tablewrap"><table class="rtable">
           <thead><tr>${th("name", "Player")}${TESTS.map((t) => th(t.k, t.short, "tcol")).join("")}${th("type", "Athlete type")}${th("focus", "Focus")}<th>Retest goal</th></tr></thead>
           <tbody>${rows}</tbody></table></div>
@@ -194,6 +196,8 @@
       </section>
       <p class="confid">For coaches only. Player results are private to each family: please use them to plan training and don't share them outside the coaching group.</p>`;
 
+    const ms = $("msort");
+    if (ms) ms.addEventListener("change", () => { sortKey = ms.value; sortDir = 1; render(); });
     $("sheet").querySelectorAll("th[data-sort]").forEach((el) =>
       el.addEventListener("click", () => {
         const k = el.dataset.sort;

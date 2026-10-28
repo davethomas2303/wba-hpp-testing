@@ -162,3 +162,33 @@
   .csec.results .sech { break-after: avoid; }
   .rtable thead { display: table-header-group; }
 }
+
+/* ---- phone: player table becomes one card per player ---- */
+.msort { display: none; }
+@media (max-width: 700px) {
+  .sorthint { display: none; }
+  .msort { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; color: var(--muted); }
+  .msort select { font: 700 13px "Montserrat", sans-serif; color: var(--ink); background: #fff; border: 1.5px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+  .tablewrap { overflow: visible; border: 0; background: transparent; border-radius: 0; }
+  .rtable { display: block; min-width: 0; }
+  .rtable thead { display: none; }
+  .rtable tbody { display: block; }
+  .rtable tr { display: grid; grid-template-columns: repeat(4, 1fr); background: #fff; border: 1px solid var(--line); border-radius: 12px; margin-bottom: 10px; overflow: hidden; }
+  .rtable td { border-top: 1px solid var(--line); padding: 8px 10px; }
+  .rtable td.pn { grid-column: 1 / -1; border-top: 0; padding: 12px 14px 10px; background: var(--ink); }
+  .rtable td.pn b { color: #fff; font-size: 14px; }
+  .rtable td.tc { width: auto; }
+  .rtable td.tc b { font-size: 15px; }
+  .rtable td[data-label]::before { content: attr(data-label); display: block; font-size: 8.5px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
+  .rtable td.b-standout[data-label]::before { color: rgba(255,255,255,.75); }
+  .rtable td.ty { grid-column: 1 / -1; }
+  .rtable td.fo, .rtable td.go { grid-column: span 2; }
+  .rtable tbody tr:hover td.pn { background: var(--ink); }
+  .cb-club span { letter-spacing: .14em; }
+}
+@media (max-width: 700px) {
+  .rtable td.ty { grid-column: span 2; }
+  .rtable td.fo, .rtable td.go { grid-column: span 1; }
+  .rtable td.ty, .rtable td.fo, .rtable td.go { font-size: 12px; }
+  .rtable td.go b { font-size: 13px; }
+}

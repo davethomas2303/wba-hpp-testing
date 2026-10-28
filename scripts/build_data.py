@@ -272,17 +272,20 @@ def main():
         r = a["record"]
         return {k: r[k] for k in ("name", "first", "gender", "age", "team", "program", "compareLabel", "compareShort", "tests")}
 
+    # Coach views are CRP only: CRP teams, plus CRP-only age-group views for admin.
+    # VJBL-only and Future Warriors Academy athletes are never in a coach view.
     groups = []   # (name, program, kind, tested athletes, untested names)
-    for tn, ro in sorted(rosters.items(), key=lambda x: (x[1]["program"], x[0])):
+    for tn, ro in sorted(rosters.items(), key=lambda x: x[0]):
+        if ro["program"] != "CRP":
+            continue
         tested = [by_norm[norm_name(m)] for m in ro["members"] if norm_name(m) in by_norm]
         untested = [m for m in ro["members"] if norm_name(m) not in by_norm]
         if tested:
-            groups.append((tn if ro["program"] == "VJBL" else f"CRP {tn}", ro["program"], "team", tested, untested))
+            groups.append((f"CRP {tn}", "CRP", "team", tested, untested))
     for (age, gender), grp in sorted(by_age.items()):
-        groups.append((f"All {age} {gender.lower()}", "Age group", "age", grp, []))
-    academy = [a for a in athletes if a["program"] == "Academy"]
-    if academy:
-        groups.append(("Not on a CRP or VJBL team", "Other", "age", academy, []))
+        crp = [a for a in grp if a["program"] == "CRP"]
+        if crp:
+            groups.append((f"All CRP {age} {gender.lower()}", "CRP age group", "age", crp, []))
 
     ccodes_path = os.path.join(DATA, "coach-codes.csv")
     c_existing = {}

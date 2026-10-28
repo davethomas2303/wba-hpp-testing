@@ -115,7 +115,7 @@
       return `<div class="sp"><span>${t.name}</span><div class="spbar">${n ? segs : '<em>No results</em>'}</div></div>`;
     }).join("");
 
-    const kindNote = team.kind === "age" ? "This is an age-group view: every tested athlete in the group." : "";
+    const kindNote = team.kind === "age" ? "This age-group view includes every tested CRP athlete in the age group." : "";
     $("sheet").innerHTML = `
       <section class="csec head">
         <div class="eyebrow">${esc(team.program)} · ${esc(team.session.label)} · ${esc(team.session.date)}</div>

@@ -8,8 +8,6 @@
     explosive: "Explosive squad", power: "Power squad", speed: "Speed squad", engine: "Fitness squad", partial: "Profile in progress" };
   let code = "", state = null, sortKey = "name", sortDir = 1;
 
-  // "U14 Boys 14.2 Red · B Grade" -> "14.2 Red · B Grade"
-  const teamShort = (t) => String(t || "").replace(/^U\d+(?:\/\d+)?\s+(Boys|Girls)\s+/, "");
   const mean = (a) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : null);
 
   function analyse(team) {
@@ -38,8 +36,7 @@
 
   function sortPlayers(players) {
     const val = (p) => {
-      if (sortKey === "name") return p.name.split(" ").slice(-1)[0] + p.name;
-      if (sortKey === "team") return teamShort(p.team) + p.name.split(" ").slice(-1)[0];
+      if (sortKey === "name") return p.name;
       if (sortKey === "type") return p.type.name;
       if (sortKey === "focus") return p.focus || "~";
       const d = p.tests[sortKey];
@@ -89,7 +86,7 @@
         return `<td class="tc b-${b.key}"><b>${esc(d.display)}</b><span>${b.name}</span></td>`;
       }).join("");
       const g = p.goal;
-      return `<tr><td class="pn"><b>${esc(p.name)}</b></td><td class="tm">${esc(teamShort(p.team))}</td>${cells}
+      return `<tr><td class="pn"><b>${esc(p.name)}</b></td>${cells}
         <td class="ty">${esc(p.type.name)}</td>
         <td class="fo">${p.focus ? `<b>${p.focus}</b><span>${g.name}</span>` : "—"}</td>
         <td class="go">${g ? `${esc(g.now)} → <b>${esc(g.target)}</b>` : "—"}</td></tr>`;
@@ -103,7 +100,7 @@
     const focusHtml = focusOrder.map((f) => `
       <div class="fgroup ${f === biggest ? "top" : ""}"><div class="fh"><b>${f}</b><span>${groups[f].length} of ${A.players.length}</span></div>
         <div class="fbar"><i style="width:${(groups[f].length / A.players.length) * 100}%"></i></div>
-        <p>${groups[f].map(esc).join(", ")}</p></div>`).join("");
+        <p>${groups[f].slice().sort((a, b) => a.localeCompare(b)).map(esc).join(", ")}</p></div>`).join("");
     const tip = {
       Power: "Build jumps, landings and lower-body strength into warm-ups: pogo jumps, squat jumps and stick-the-landing drills.",
       Speed: "Add short acceleration work early in sessions while players are fresh: falling starts and 5–10 m races.",
@@ -142,7 +139,7 @@
       <section class="csec">
         <div class="sech"><h2>Squad results</h2><span>Click a column to sort. Tests sort best first.</span></div>
         <div class="tablewrap"><table class="rtable">
-          <thead><tr>${th("name", "Player")}${th("team", "Team")}${TESTS.map((t) => th(t.k, t.short, "tcol")).join("")}${th("type", "Athlete type")}${th("focus", "Focus")}<th>Retest goal</th></tr></thead>
+          <thead><tr>${th("name", "Player")}${TESTS.map((t) => th(t.k, t.short, "tcol")).join("")}${th("type", "Athlete type")}${th("focus", "Focus")}<th>Retest goal</th></tr></thead>
           <tbody>${rows}</tbody></table></div>
       </section>
 
@@ -151,7 +148,7 @@
           ${tip ? `<div class="ctip"><b>Session idea · ${biggest}</b>${tip}</div>` : ""}</div>
         <div class="card spread"><div class="kicker">Band spread</div><h3>How the squad is spread</h3>${spread}
           <div class="bandkey">${BANDS.map((b) => `<span class="bk"><i class="seg s-${b.key}"></i>${b.name}</span>`).join("")}</div>
-          ${team.notTested.length ? `<div class="nt"><b>Not tested</b>${team.notTested.map(esc).join(", ")}</div>` : ""}</div>
+          ${team.notTested.length ? `<div class="nt"><b>Not tested</b>${team.notTested.slice().sort((a, b) => a.localeCompare(b)).map(esc).join(", ")}</div>` : ""}</div>
       </section>
       <p class="confid">For coaches only. Player results are private to each family: please use them to plan training and don't share them outside the coaching group.</p>`;
 

@@ -306,7 +306,7 @@ def main():
                            "tested": len(tested), "squad": len(tested) + len(untested)})
         kv.append({"key": f"team:{sl}", "value": json.dumps({
             "slug": sl, "name": name, "program": program, "kind": kind, "session": SESSION,
-            "players": [player(a) for a in sorted(tested, key=lambda a: a["surname"])],
+            "players": [player(a) for a in sorted(tested, key=lambda a: a["name"])],
             "notTested": untested,
         }, separators=(",", ":"))})
         if kind == "team":

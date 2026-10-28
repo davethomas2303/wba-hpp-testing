@@ -61,20 +61,26 @@
       pick.classList.remove("hidden");
     } else pick.classList.add("hidden");
 
-    // ---- squad profile
-    const tType = HPP.profileType({
-      power: mean([A.teamZ.vj, A.teamZ.bj].filter((v) => v != null)),
-      speed: A.teamZ.sprint, engine: A.teamZ.yoyo,
-    });
-    const labels = {};
-    TESTS.forEach((t) => (labels[t.k] = { value: A.teamAvg[t.k] != null ? `${fmtVal(t.k, A.teamAvg[t.k])} ${t.unit}` : null, band: bandOf(A.teamZ[t.k]) }));
-    const chart = HPP.radar([{ z: A.teamZ, cls: "team" }], labels);
-    const avgRows = TESTS.map((t) => {
-      const b = bandOf(A.teamZ[t.k]);
-      return `<tr><td>${t.name}</td><td><b>${A.teamAvg[t.k] != null ? fmtVal(t.k, A.teamAvg[t.k]) : "—"}</b></td>
-        <td>${A.ageAvg[t.k] != null ? fmtVal(t.k, A.ageAvg[t.k]) : "—"}</td>
-        <td>${b ? `<span class="bchip b-${b.key}">${b.name}</span>` : "—"}</td></tr>`;
+    // ---- squad mix (what's inside the squad) + per-test summary
+    const nP = A.players.length;
+    const cntB = (k, keys) => A.players.filter((p) => p.bands[k] && keys.includes(p.bands[k].key)).length;
+    const mix = {};
+    A.players.forEach((p) => (mix[p.type.name] = (mix[p.type.name] || 0) + 1));
+    const mixList = Object.entries(mix).sort((x, y) => y[1] - x[1] || x[0].localeCompare(y[0]));
+    const mixHtml = mixList.map(([nm, c]) => `<div class="mx"><span>${esc(nm)}</span><div class="mxbar"><i style="width:${(c / nP) * 100}%"></i></div><b>${c}</b></div>`).join("");
+    const nx = team.nextAge;
+    const testRows = TESTS.map((t) => {
+      const vals = A.players.map((p) => p.tests[t.k]).filter((d) => d && d.value != null).map((d) => d.value);
+      if (!vals.length) return `<tr><td>${t.short}</td><td colspan="${nx ? 5 : 4}">No results</td></tr>`;
+      const bestV = t.higher ? Math.max(...vals) : Math.min(...vals), lowV = t.higher ? Math.min(...vals) : Math.max(...vals);
+      const nxv = nx && nx.avg[t.k] != null ? nx.avg[t.k] : null;
+      return `<tr><td class="tn">${t.short}</td><td><b>${fmtVal(t.k, A.teamAvg[t.k])}</b></td>
+        <td class="rng">${fmtVal(t.k, bestV)} <i>to</i> ${fmtVal(t.k, lowV)}</td>
+        <td><span class="cnt good">${cntB(t.k, ["strong", "standout"])}</span></td>
+        <td><span class="cnt grow">${cntB(t.k, ["building"])}</span></td>
+        ${nx ? `<td>${nxv != null ? fmtVal(t.k, nxv) : "—"}</td>` : ""}</tr>`;
     }).join("");
+    const bottomN = A.players.filter((p) => p.ageBand === "Bottom age").length;
 
     // ---- results table
     const th = (k, label, cls = "") =>
@@ -86,7 +92,7 @@
         return `<td class="tc b-${b.key}" data-label="${t.short}"><b>${esc(d.display)}</b><span>${b.name}</span></td>`;
       }).join("");
       const g = p.goal;
-      return `<tr><td class="pn"><b>${esc(p.name)}</b></td>${cells}
+      return `<tr><td class="pn"><b>${esc(p.name)}</b>${p.ageBand ? `<span class="ab ${p.ageBand === "Bottom age" ? "bot" : ""}">${p.ageBand}</span>` : ""}</td>${cells}
         <td class="ty" data-label="Athlete type">${esc(p.type.name)}</td>
         <td class="fo" data-label="Focus">${p.focus ? `<b>${p.focus}</b><span>${g.name}</span>` : "—"}</td>
         <td class="go" data-label="Retest goal">${g ? `${esc(g.now)} → <b>${esc(g.target)}</b>` : "—"}</td></tr>`;
@@ -111,23 +117,27 @@
     const first = (p) => p.first || p.name.split(" ")[0];
     const names = (arr) => (arr.length ? arr.map(first).sort((a, b) => a.localeCompare(b)).map(esc).join(", ") : "None this round");
     const n = A.players.length, squad = n + team.notTested.length;
-    const zt = TESTS.filter((t) => A.teamZ[t.k] != null).sort((a, b) => A.teamZ[b.k] - A.teamZ[a.k]);
-    const cnt = (k, keys) => A.players.filter((p) => p.bands[k] && keys.includes(p.bands[k].key)).length;
-    const best = zt[0], worst = zt[zt.length - 1];
-    const vs = (t) => `Squad average ${fmtVal(t.k, A.teamAvg[t.k])} ${t.unit === "level" ? "" : t.unit} vs ${esc(A.cmp)} ${fmtVal(t.k, A.ageAvg[t.k] != null ? A.ageAvg[t.k] : A.teamAvg[t.k])}`;
+    const score = (t) => (cntB(t.k, ["strong", "standout"]) - cntB(t.k, ["building"])) / n;
+    const zt = TESTS.filter((t) => A.players.some((p) => p.bands[t.k])).sort((a, b) => score(b) - score(a));
+    const best = zt[0];
+    const worst = TESTS.filter((t) => A.players.some((p) => p.bands[t.k]))
+      .sort((a, b) => cntB(b.k, ["building"]) - cntB(a.k, ["building"]) || score(a) - score(b))[0];
+    const cnt = cntB;
+    const small = n < 5;
     const standouts = A.players.filter((p) => ["standoutall", "allround"].includes(p.type.key) || TESTS.filter((t) => p.bands[t.k] && p.bands[t.k].key === "standout").length >= 2);
     const support = A.players.filter((p) => p.type.key === "developing");
-    const tName = TEAM_NAME[tType.key] || tType.name;
     const summary = `
       <section class="csec exec">
         <div class="sech"><h2>Executive summary</h2><span>${esc(team.session.label)} · ${esc(team.session.date)}</span></div>
         <div class="lead card"><div class="kicker">The headline</div>
-          <p><b>${n} of ${squad}</b> ${esc(team.name.replace(/^CRP /, "CRP "))} athletes were tested. As a group they're a <b>${esc(tName.toLowerCase())}</b>. ${HPP.teamProfileText(tType)}</p></div>
+          <p><b>${n} of ${squad}</b> ${esc(team.name)} athletes were tested${bottomN ? `, ${bottomN} of them bottom-age` : ""}. ${small
+            ? `With only ${n} tested, squad-level patterns aren't reliable yet, so use the individual results below.`
+            : `The most common profile is <b>${esc(mixList[0][0].toLowerCase())}</b> (${mixList[0][1]} of ${n}), and ${cntB("vj", ["standout"]) + cntB("bj", ["standout"]) + cntB("sprint", ["standout"]) + cntB("yoyo", ["standout"])} results across the four tests are Standout. Bands allow for each player's exact age, so bottom-age players aren't marked down for being younger.`}</p></div>
         <div class="kgrid">
           ${best ? `<div class="card kc good"><div class="kicker">Squad strength</div><h3>${best.name}</h3>
-            <p>${vs(best)}. <b>${cnt(best.k, ["strong", "standout"])} of ${n}</b> players are Strong or Standout.</p></div>` : ""}
+            <p><b>${cnt(best.k, ["strong", "standout"])} of ${n}</b> players are Strong or Standout, and ${cnt(best.k, ["building"])} are Building. The squad's deepest test.</p></div>` : ""}
           ${worst && worst !== best ? `<div class="card kc grow"><div class="kicker">Biggest opportunity</div><h3>${worst.name}</h3>
-            <p>${vs(worst)}. <b>${cnt(worst.k, ["building"])} of ${n}</b> players are Building in this test.</p></div>` : ""}
+            <p><b>${cnt(worst.k, ["building"])} of ${n}</b> players are Building in this test, with ${cnt(worst.k, ["strong", "standout"])} Strong or Standout. The most room for the squad to grow.</p></div>` : ""}
           ${biggest ? `<div class="card kc plan"><div class="kicker">Training priority</div><h3>${biggest}</h3>
             <p><b>${groups[biggest].length} of ${n}</b> players have ${biggest.toLowerCase()} as their focus area. ${tip}</p></div>` : ""}
           <div class="card kc people"><div class="kicker">Players to note</div>
@@ -138,11 +148,11 @@
       <section class="csec howto">
         <div class="sech"><h2>How to read this report</h2></div>
         <div class="hgrid">
-          <div><b>Bands</b><p>Each result is compared with every ${esc(A.cmp)} athlete tested across the Warriors programs, so a band means the same thing in every report.</p>
+          <div><b>Bands</b><p>Each result is compared with ${esc(A.cmp)} athletes of the same exact age, using everyone tested across the Warriors programs. Bottom-age players aren't marked down for being younger, and families see the same bands.</p>
             <div class="bandkey">${BANDS.map((b) => `<span class="bchip b-${b.key}">${b.name}</span>`).join("")}</div></div>
           <div><b>Athlete type</b><p>The overall shape of a player's results across power (jumps), speed (sprint) and fitness (Yo-Yo), e.g. Explosive athlete, The engine, or Balanced athlete.</p></div>
           <div><b>Focus and retest goal</b><p>Each player's lowest-scoring quality, with one target for the Feb–Mar retest that moves them up a band. Every family sees the same goal in their report.</p></div>
-          <div><b>Growth matters</b><p>Players grow at different times, and results can dip during a growth spurt. Improvement between tests matters more than where a player sits on one day.</p></div>
+          <div><b>Top and bottom age</b><p>Each age group spans two birth years, marked on every player. Players also grow at different times, so improvement between tests matters more than one day's result.</p></div>
         </div>
       </section>`;
 
@@ -165,16 +175,14 @@
       </section>
       ${summary}
 
-      <section class="csec grid2">
-        <div class="card profile cprof">
-          <div class="pchart">${chart}</div>
-          <div class="ptype"><div class="kicker">Squad profile</div><h3>${TEAM_NAME[tType.key] || tType.name}</h3><p>${HPP.teamProfileText(tType)}</p>
-            <div class="pleg"><span><i class="team"></i>Squad average</span><span><i class="avg"></i>${esc(A.cmp)} average</span></div></div>
-        </div>
+      <section class="csec grid2 mixgrid">
+        <div class="card mixcard"><div class="kicker">Squad mix</div><h3>Athlete types in the squad</h3>
+          ${mixHtml}
+          <p class="fine">Each player's type comes from the shape of their four results. See the player table for who is which.</p></div>
         <div class="card avgs">
-          <div class="kicker">Squad averages</div>
-          <table class="atable"><tr><th>Test</th><th>Squad</th><th>${esc(A.cmp)}</th><th>Band</th></tr>${avgRows}</table>
-          <p class="fine">Sprint: lower is better. Yo-Yo is the level reached (level.shuttle).</p>
+          <div class="kicker">Squad by test</div>
+          <table class="atable"><tr><th>Test</th><th>Average</th><th>Best to lowest</th><th title="Strong or Standout">Strong+</th><th>Building</th>${nx ? `<th>${esc(nx.label)} avg</th>` : ""}</tr>${testRows}</table>
+          <p class="fine">Sprint: lower is better. Yo-Yo is the level reached (level.shuttle).${nx ? ` The ${esc(nx.label)} average is the level of the next age group up, a target to grow towards.` : ""}</p>
         </div>
       </section>
 

@@ -18,16 +18,20 @@
   // Based on how far a result sits from the age-group average, in age-group spreads (z).
   // Roughly: Building ~30% of athletes, On track ~40%, Strong ~20%, Standout ~10%.
   const BANDS = [
-    { key: "building", name: "Building", lo: -Infinity, hi: -0.5, desc: "Below the age-group average." },
-    { key: "ontrack", name: "On track", lo: -0.5, hi: 0.5, desc: "Around the age-group average." },
-    { key: "strong", name: "Strong", lo: 0.5, hi: 1.25, desc: "Clearly above the age-group average." },
-    { key: "standout", name: "Standout", lo: 1.25, hi: Infinity, desc: "Well above the age-group average." },
+    { key: "building", name: "Building", lo: -Infinity, hi: -0.5, desc: "Below average for their exact age." },
+    { key: "ontrack", name: "On track", lo: -0.5, hi: 0.5, desc: "Around average for their exact age." },
+    { key: "strong", name: "Strong", lo: 0.5, hi: 1.25, desc: "Clearly above average for their age." },
+    { key: "standout", name: "Standout", lo: 1.25, hi: Infinity, desc: "Well above average for their age." },
   ];
   const bandOf = (z) => (z == null ? null : BANDS.find((b) => z >= b.lo && z < b.hi));
   const bandIdx = (b) => BANDS.indexOf(b);
 
   // value at a given z for a test
-  const valueAtZ = (t, d, z) => (t.higher ? d.ageAvg + z * d.ageSd : d.ageAvg - z * d.ageSd);
+  // Age-adjusted centre and spread when available (exp/sdAdj), else the age-group average.
+  const valueAtZ = (t, d, z) => {
+    const c = d.exp != null ? d.exp : d.ageAvg, sd = d.sdAdj || d.ageSd;
+    return t.higher ? c + z * sd : c - z * sd;
+  };
 
   // ---------------------------------------------------------------- qualities & type
   function qualities(tests) {

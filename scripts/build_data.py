@@ -31,6 +31,8 @@ SESSION = {
     "label": "Pre-season testing",
     "date": "Sunday 25 October 2026",
     "dateShort": "25 Oct 2026",
+    "testDate": "2026-10-25",     # used for each athlete's exact age on the day
+    "seasonYear": 2026,           # 2026/27 season: U16 top age = born 2012
 }
 MIN_TEAM_N = 4      # need at least this many tested team-mates to show a team average
 MIN_AGE_N = 6       # comparisons are always age-specific; a same-age, same-gender group smaller than
@@ -205,6 +207,50 @@ def main():
 
     steps = {"vj": 5, "bj": 25, "sprint": 0.25, "yoyo": 1}
 
+    # ---- age adjustment ------------------------------------------------------
+    # Each age group spans two birth years, and older athletes test better. So bands
+    # are age-adjusted: for every test and gender we fit the trend of result against
+    # exact age (using everyone tested), and each athlete is scored against the
+    # expected result for their exact age. Spread comes from their comparison group.
+    import numpy as np
+    from datetime import date
+    td = date.fromisoformat(SESSION["testDate"])
+
+    def dec_age(dob):
+        try:
+            d, m, y = (int(x) for x in str(dob).strip().split("/"))
+            return (td - date(y, m, d)).days / 365.25
+        except Exception:
+            return None
+
+    for a in athletes:
+        a["decAge"] = dec_age(a["dob"])
+        a["ageBand"] = None
+        if a["dob"]:
+            yr = int(str(a["dob"]).strip()[-4:])
+            top = SESSION["seasonYear"] + 2 - int(re.sub(r"\D", "", a["age"]))
+            a["ageBand"] = "Top age" if yr <= top else "Bottom age"
+
+    trend = {}
+    for g in ("Boys", "Girls"):
+        for k in TESTS:
+            pts = [(a["decAge"], a["results"][k]["value"]) for a in athletes
+                   if a["gender"] == g and a["decAge"] is not None and a["results"][k]["value"] is not None]
+            if len(pts) >= 8:
+                x, y = np.array([p[0] for p in pts]), np.array([p[1] for p in pts])
+                trend[(g, k)] = np.polyfit(x, y, 2 if len(pts) >= 20 else 1)
+
+    def expected(a, k):
+        c = trend.get((a["gender"], k))
+        return None if c is None or a["decAge"] is None else float(np.polyval(c, a["decAge"]))
+
+    def resid_sd(group, k):
+        r = [a["results"][k]["value"] - expected(a, k) for a in group
+             if a["results"][k]["value"] is not None and expected(a, k) is not None]
+        return statistics.pstdev(r) if len(r) >= 4 else None
+
+    by_age_n = {key: {k: stats(grp, k) for k in TESTS} for key, grp in by_age.items()}
+
     # ---- codes ---------------------------------------------------------------
     codes_path = os.path.join(DATA, "access-codes.csv")
     existing = {}
@@ -232,14 +278,23 @@ def main():
                 s_team = None
             v = a["results"][k]["value"]
             lo, hi = nice_bounds(s_age["min"], s_age["max"], steps[k]) if s_age else (0, 1)
-            z = None
+            z = z_raw = None
+            sign = 1 if t["higher"] else -1
             if v is not None and s_age and s_age["sd"] > 0:
-                z = (v - s_age["mean"]) / s_age["sd"] * (1 if t["higher"] else -1)
+                z_raw = (v - s_age["mean"]) / s_age["sd"] * sign
+            exp, sd_adj = expected(a, k), resid_sd(cmp_grp, k)
+            if v is not None and exp is not None and sd_adj:
+                z = (v - exp) / sd_adj * sign
+            elif z_raw is not None:
+                z, exp, sd_adj = z_raw, None, None
             tests[k] = {
                 "value": v, "display": a["results"][k]["display"],
                 "ageAvg": round(s_age["mean"], t["dp"] + (1 if k == "sprint" else 0)) if s_age else None,
                 "teamAvg": round(s_team["mean"], t["dp"] + (1 if k == "sprint" else 0)) if s_team else None,
                 "z": None if z is None else round(z, 3),
+                "zRaw": None if z_raw is None else round(z_raw, 3),
+                "exp": None if exp is None else round(exp, 3),
+                "sdAdj": None if not sd_adj else round(sd_adj, 4),
                 "ageSd": round(s_age["sd"], 4) if s_age else None,
                 "tries": a["results"][k].get("tries"),
                 "scaleMin": lo, "scaleMax": hi,
@@ -253,6 +308,7 @@ def main():
             "gender": a["gender"], "age": a["age"],
             "team": a["team"], "teamShort": team_short(a["team"]) if a["team"] else None,
             "program": a["program"], "compareLabel": cmp_label, "compareShort": cmp_short,
+            "ageBand": a["ageBand"],
             "tests": tests,
         }
         kv.append({"key": f"athlete:{h}", "value": json.dumps(record, separators=(",", ":"))})
@@ -270,7 +326,7 @@ def main():
 
     def player(a):
         r = a["record"]
-        return {k: r[k] for k in ("name", "first", "gender", "age", "team", "program", "compareLabel", "compareShort", "tests")}
+        return {k: r[k] for k in ("name", "first", "gender", "age", "team", "program", "compareLabel", "compareShort", "ageBand", "tests")}
 
     # Coach views: one per CRP age group (e.g. "CRP U14 boys"), CRP athletes only.
     # VJBL-only and Future Warriors Academy athletes are never in a coach view.
@@ -304,8 +360,16 @@ def main():
         sl = slug(name)
         team_index.append({"slug": sl, "name": name, "program": program, "kind": kind,
                            "tested": len(tested), "squad": len(tested) + len(untested)})
+        age0, gender0 = tested[0]["age"], tested[0]["gender"]
+        nxt_age = f"U{int(re.sub(r'\D', '', age0)) + 2}"
+        nxt = by_age_n.get((nxt_age, gender0))
+        next_age = None
+        if nxt and any(nxt[k] for k in TESTS):
+            next_age = {"label": f"{nxt_age} {gender0.lower()}",
+                        "avg": {k: (round(nxt[k]["mean"], 3) if nxt[k] else None) for k in TESTS},
+                        "n": max((nxt[k]["n"] for k in TESTS if nxt[k]), default=0)}
         kv.append({"key": f"team:{sl}", "value": json.dumps({
-            "slug": sl, "name": name, "program": program, "kind": kind, "session": SESSION,
+            "slug": sl, "name": name, "program": program, "kind": kind, "session": SESSION, "nextAge": next_age,
             "players": [player(a) for a in sorted(tested, key=lambda a: a["name"])],
             "notTested": untested,
         }, separators=(",", ":"))})

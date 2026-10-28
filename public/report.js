@@ -237,13 +237,13 @@
     return `
     <section class="page"><div class="page-body">
       ${head("Your results", `${esc(r.first)}'s`, "results.")}
-      <p class="sec-intro">Four tests, chosen because each one carries over to every sport ${esc(r.first)} plays. Every result is compared with all ${esc(A.cmp)} tested across the Warriors program${anyTeam ? `, and with ${A.his} tested team-mates` : ""}, and given a band from <b>Building</b> to <b>Standout</b>.</p>
+      <p class="sec-intro">Four tests, chosen because each one carries over to every sport ${esc(r.first)} plays. Every result is compared with all ${esc(A.cmp)} tested across the Warriors program${anyTeam ? `, and with ${A.his} tested team-mates` : ""}, and given a band from <b>Building</b> to <b>Standout</b> that allows for ${A.his} exact age.</p>
       <div class="result-grid">${cards}</div>
       <div class="sits">
         <div class="sits-head"><h3>Where ${esc(r.first)} sits</h3>
           <div class="legend"><span><i class="dot"></i>${esc(r.first)}</span><span><i class="tk"></i>Age avg</span>${anyTeam ? '<span><i class="tk team"></i>Team avg</span>' : ""}</div></div>
         <div class="card scales">${scales}</div>
-        <div class="bandkey"><span>Further right is better. Shading shows the bands:</span>
+        <div class="bandkey"><span>Further right is better. Bands allow for exact age:</span>
           ${HPP.BANDS.map((b) => `<span class="bk"><i class="seg s-${b.key}"></i>${b.name}</span>`).join("")}</div>
       </div>
     </div>${foot(r, 2)}</section>`;
@@ -280,11 +280,11 @@
     return `
     <section class="page"><div class="page-body">
       ${head("Athlete profile", `${esc(r.first)}'s`, "profile.")}
-      <p class="sec-intro">The shape shows all four results together. The further out each point sits, the stronger the result compared with other ${esc(A.cmp)}. The dashed line is the age-group average.</p>
+      <p class="sec-intro">The shape shows all four results together. The further out each point sits, the stronger the result for ${esc(r.first)}'s exact age. The dashed line is average for ${A.his} age.</p>
       <div class="card profile">
         <div class="pchart">${chart}</div>
         <div class="ptype"><div class="kicker">Athlete type</div><h3>${type.name}</h3><p>${HPP.profileText(type, p)}</p>
-          <div class="pleg"><span><i class="me"></i>${esc(r.first)}</span><span><i class="avg"></i>${esc(r.compareShort || A.cmp)} average</span></div></div>
+          <div class="pleg"><span><i class="me"></i>${esc(r.first)}</span><span><i class="avg"></i>Average for ${A.his} age</span></div></div>
       </div>
       <h3 class="sub-h">The four bands</h3>
       <div class="bandrow">${bandCards}</div>

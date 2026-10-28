@@ -75,13 +75,14 @@ Open **wba-hpp-testing.pages.dev/admin**, enter the admin password, and click **
 
 - **Age-group average:** every tested athlete of the same age and gender (U10 boys, U12 girls, and so on). U10 and U12 are compared separately even though they tested together. If fewer than 6 athletes of that age and gender were tested, the athlete is compared with all athletes of that age. This applies to the 3 U10 girls, who are compared with all U10s.
 - **Team average:** tested team-mates in the athlete's 2026/27 CRP team (or their VJBL team if they aren't in a CRP team). It's only shown when at least 4 team-mates were tested.
-- **Bands:** each result is scored by how far it sits from the age-group average, in age-group spreads (a z-score).
+- **Bands (age-adjusted):** each age group spans two birth years, and older athletes test better. So for every test and gender, the import fits the trend of result against exact age (using everyone tested), and each athlete is scored against the expected result for their exact age on testing day. The spread comes from their age group. The bands are:
   - Building: more than half a spread below
   - On track: within half a spread
   - Strong: half to 1¼ spreads above
   - Standout: more than 1¼ spreads above
 
-  That's roughly 30 / 40 / 20 / 10% of athletes. Bands never show a ranking. They're shown as traffic lights: Standout green, Strong yellow, On track orange, Building red.
+  They're shown as traffic lights (Building red, On track orange, Strong yellow, Standout green). Bottom-age athletes aren't marked down for being younger. The age-group averages shown on result cards are still plain averages.
+- **Top age / bottom age:** from birth year. For the 2026/27 season, U16 top age is born 2012 and bottom age is born 2013. Shown on every player in the coach view.
 - **Athlete type (profile page):** uses three qualities: power (the average of the two jumps), speed (sprint) and fitness (Yo-Yo).
   - All-round athlete: all three are Strong or better.
   - Standout all-rounder: all three are Strong or better, and well above average overall.
@@ -100,7 +101,7 @@ Open **wba-hpp-testing.pages.dev/admin**, enter the admin password, and click **
 - **From the testing floor:** looks at the three attempts for each jump and sprint, and comments on one of these: a big gap between attempts (technique), getting better every attempt (still learning the movement), best on the first try everywhere (warm-up), or consistent technique.
 - **Scales:** each bar's range is set from the lowest and highest results in that age group, shaded by band.
 - **Missing tests** show as "Not tested". They're left out of the band, profile and goal calculations.
-- **Coach view:** squad averages, the squad profile (the average of each player's band score), every player's results, athlete type, focus and retest goal. The table can be sorted by any column. It also shows how many players have each training focus, with a session idea for the biggest group, plus the band spread for each test and who on the team list wasn't tested.
+- **Coach view (one per CRP age group, CRP athletes only):** an executive summary (count-based strength and opportunity, training priority, players to note), the squad mix of athlete types, and a squad-by-test table (average, best to lowest, Strong+ and Building counts, and the next age group's average as a target). Below that, every player with their top/bottom age, results, athlete type, focus and retest goal. The table can be sorted by any column. It also shows how many players have each training focus, with a session idea for the biggest group, plus the band spread for each test and who on the team list wasn't tested.
 - **Age-based content:** U14-and-under athletes see the 10-week at-home program ($100 one-off, with exercise videos and guidance). U16 and U18 athletes see Online Coaching in its place. U16 and U18 athletes also get Strength & Conditioning as their focus on the coach page.
 - **State pathway (Basketball Victoria Country, U12–U18):** Country Skills Day (U12), Country Jamboree (U12), Regional Skills Day (U14), Future Development Program (U14), CMC · Gold Nugget Camp (U14), State Development Program (U16–U18). The steps for the athlete's age are highlighted, and U10s see Country Skills Day marked "Next".
 

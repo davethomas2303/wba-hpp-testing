@@ -52,7 +52,7 @@ The codes don't change when you rerun the import, so families keep the same code
 
 ## Sending codes to coaches
 
-`data/coach-codes.csv` has one code per CRP and VJBL team that had at least one player tested. Send each coach the code for their team, with the link **wba-hpp-testing.pages.dev/coach**. A coach code only opens that team. Coach codes also stay the same when you rerun the import.
+`data/coach-codes.csv` has one code per CRP age group (e.g. CRP U14 boys). Each view includes CRP athletes only, never VJBL-only or Future Warriors Academy athletes. It shows the group summary plus every player's results, with their CRP team. Send each age-group coach their code with the link **wba-hpp-testing.pages.dev/coach**. A coach code only opens its own age group. Coach codes also stay the same when you rerun the import.
 
 ## Who has opened their report?
 

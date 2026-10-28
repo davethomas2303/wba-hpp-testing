@@ -8,6 +8,8 @@
     explosive: "Explosive squad", power: "Power squad", speed: "Speed squad", engine: "Fitness squad", partial: "Profile in progress" };
   let code = "", state = null, sortKey = "name", sortDir = 1;
 
+  // "U14 Boys 14.2 Red · B Grade" -> "14.2 Red · B Grade"
+  const teamShort = (t) => String(t || "").replace(/^U\d+(?:\/\d+)?\s+(Boys|Girls)\s+/, "");
   const mean = (a) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : null);
 
   function analyse(team) {
@@ -37,6 +39,7 @@
   function sortPlayers(players) {
     const val = (p) => {
       if (sortKey === "name") return p.name.split(" ").slice(-1)[0] + p.name;
+      if (sortKey === "team") return teamShort(p.team) + p.name.split(" ").slice(-1)[0];
       if (sortKey === "type") return p.type.name;
       if (sortKey === "focus") return p.focus || "~";
       const d = p.tests[sortKey];
@@ -86,7 +89,7 @@
         return `<td class="tc b-${b.key}"><b>${esc(d.display)}</b><span>${b.name}</span></td>`;
       }).join("");
       const g = p.goal;
-      return `<tr><td class="pn"><b>${esc(p.name)}</b><span>${esc(p.age)}${p.compareShort && p.compareShort !== p.age ? "" : ""}</span></td>${cells}
+      return `<tr><td class="pn"><b>${esc(p.name)}</b></td><td class="tm">${esc(teamShort(p.team))}</td>${cells}
         <td class="ty">${esc(p.type.name)}</td>
         <td class="fo">${p.focus ? `<b>${p.focus}</b><span>${g.name}</span>` : "—"}</td>
         <td class="go">${g ? `${esc(g.now)} → <b>${esc(g.target)}</b>` : "—"}</td></tr>`;
@@ -139,7 +142,7 @@
       <section class="csec">
         <div class="sech"><h2>Squad results</h2><span>Click a column to sort. Tests sort best first.</span></div>
         <div class="tablewrap"><table class="rtable">
-          <thead><tr>${th("name", "Player")}${TESTS.map((t) => th(t.k, t.short, "tcol")).join("")}${th("type", "Athlete type")}${th("focus", "Focus")}<th>Retest goal</th></tr></thead>
+          <thead><tr>${th("name", "Player")}${th("team", "Team")}${TESTS.map((t) => th(t.k, t.short, "tcol")).join("")}${th("type", "Athlete type")}${th("focus", "Focus")}<th>Retest goal</th></tr></thead>
           <tbody>${rows}</tbody></table></div>
       </section>
 

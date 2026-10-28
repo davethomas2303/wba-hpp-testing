@@ -272,20 +272,24 @@ def main():
         r = a["record"]
         return {k: r[k] for k in ("name", "first", "gender", "age", "team", "program", "compareLabel", "compareShort", "tests")}
 
-    # Coach views are CRP only: CRP teams, plus CRP-only age-group views for admin.
+    # Coach views: one per CRP age group (e.g. "CRP U14 boys"), CRP athletes only.
     # VJBL-only and Future Warriors Academy athletes are never in a coach view.
-    groups = []   # (name, program, kind, tested athletes, untested names)
-    for tn, ro in sorted(rosters.items(), key=lambda x: x[0]):
+    def roster_group(team_name):
+        m = re.match(r"U(\d+)(?:/\d+)?\s+(Boys|Girls)", team_name)
+        return (f"U{m.group(1)}", m.group(2)) if m else None
+    untested_by_group = {}
+    for tn, ro in rosters.items():
         if ro["program"] != "CRP":
             continue
-        tested = [by_norm[norm_name(m)] for m in ro["members"] if norm_name(m) in by_norm]
-        untested = [m for m in ro["members"] if norm_name(m) not in by_norm]
-        if tested:
-            groups.append((f"CRP {tn}", "CRP", "team", tested, untested))
-    for (age, gender), grp in sorted(by_age.items()):
+        g = roster_group(tn)
+        for m in ro["members"]:
+            if norm_name(m) not in by_norm and g:
+                untested_by_group.setdefault(g, []).append(m)
+    groups = []   # (name, program, kind, tested athletes, untested names)
+    for (age, gender), grp in sorted(by_age.items(), key=lambda x: (int(x[0][0][1:]), x[0][1])):
         crp = [a for a in grp if a["program"] == "CRP"]
         if crp:
-            groups.append((f"All CRP {age} {gender.lower()}", "CRP age group", "age", crp, []))
+            groups.append((f"CRP {age} {gender.lower()}", "CRP", "team", crp, sorted(untested_by_group.get((age, gender), []))))
 
     ccodes_path = os.path.join(DATA, "coach-codes.csv")
     c_existing = {}

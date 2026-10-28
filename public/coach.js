@@ -107,6 +107,45 @@
       Fitness: "Use game-like conditioning: small-sided games with short rests and repeat-effort shuttles at the end of training.",
     }[biggest];
 
+    // ---- executive summary
+    const first = (p) => p.first || p.name.split(" ")[0];
+    const names = (arr) => (arr.length ? arr.map(first).sort((a, b) => a.localeCompare(b)).map(esc).join(", ") : "None this round");
+    const n = A.players.length, squad = n + team.notTested.length;
+    const zt = TESTS.filter((t) => A.teamZ[t.k] != null).sort((a, b) => A.teamZ[b.k] - A.teamZ[a.k]);
+    const cnt = (k, keys) => A.players.filter((p) => p.bands[k] && keys.includes(p.bands[k].key)).length;
+    const best = zt[0], worst = zt[zt.length - 1];
+    const vs = (t) => `Squad average ${fmtVal(t.k, A.teamAvg[t.k])} ${t.unit === "level" ? "" : t.unit} vs ${esc(A.cmp)} ${fmtVal(t.k, A.ageAvg[t.k] != null ? A.ageAvg[t.k] : A.teamAvg[t.k])}`;
+    const standouts = A.players.filter((p) => ["standoutall", "allround"].includes(p.type.key) || TESTS.filter((t) => p.bands[t.k] && p.bands[t.k].key === "standout").length >= 2);
+    const support = A.players.filter((p) => p.type.key === "developing");
+    const tName = TEAM_NAME[tType.key] || tType.name;
+    const summary = `
+      <section class="csec exec">
+        <div class="sech"><h2>Executive summary</h2><span>${esc(team.session.label)} · ${esc(team.session.date)}</span></div>
+        <div class="lead card"><div class="kicker">The headline</div>
+          <p><b>${n} of ${squad}</b> ${esc(team.name.replace(/^CRP /, "CRP "))} athletes were tested. As a group they're a <b>${esc(tName.toLowerCase())}</b>. ${HPP.teamProfileText(tType)}</p></div>
+        <div class="kgrid">
+          ${best ? `<div class="card kc good"><div class="kicker">Squad strength</div><h3>${best.name}</h3>
+            <p>${vs(best)}. <b>${cnt(best.k, ["strong", "standout"])} of ${n}</b> players are Strong or Standout.</p></div>` : ""}
+          ${worst && worst !== best ? `<div class="card kc grow"><div class="kicker">Biggest opportunity</div><h3>${worst.name}</h3>
+            <p>${vs(worst)}. <b>${cnt(worst.k, ["building"])} of ${n}</b> players are Building in this test.</p></div>` : ""}
+          ${biggest ? `<div class="card kc plan"><div class="kicker">Training priority</div><h3>${biggest}</h3>
+            <p><b>${groups[biggest].length} of ${n}</b> players have ${biggest.toLowerCase()} as their focus area. ${tip}</p></div>` : ""}
+          <div class="card kc people"><div class="kicker">Players to note</div>
+            <p><b>Standouts:</b> ${names(standouts)}</p>
+            <p><b>Most room to grow:</b> ${names(support)}</p></div>
+        </div>
+      </section>
+      <section class="csec howto">
+        <div class="sech"><h2>How to read this report</h2></div>
+        <div class="hgrid">
+          <div><b>Bands</b><p>Each result is compared with every ${esc(A.cmp)} athlete tested across the Warriors programs, so a band means the same thing in every report.</p>
+            <div class="bandkey">${BANDS.map((b) => `<span class="bchip b-${b.key}">${b.name}</span>`).join("")}</div></div>
+          <div><b>Athlete type</b><p>The overall shape of a player's results across power (jumps), speed (sprint) and fitness (Yo-Yo), e.g. Explosive athlete, The engine, or Balanced athlete.</p></div>
+          <div><b>Focus and retest goal</b><p>Each player's lowest-scoring quality, with one target for the Feb–Mar retest that moves them up a band. Every family sees the same goal in their report.</p></div>
+          <div><b>Growth matters</b><p>Players grow at different times, and results can dip during a growth spurt. Improvement between tests matters more than where a player sits on one day.</p></div>
+        </div>
+      </section>`;
+
     // ---- band spread
     const spread = TESTS.map((t) => {
       const counts = BANDS.map((b) => A.players.filter((p) => p.bands[t.k] === b).length);
@@ -117,11 +156,14 @@
 
     const kindNote = team.kind === "age" ? "This age-group view includes every tested CRP athlete in the age group." : "";
     $("sheet").innerHTML = `
-      <section class="csec head">
-        <div class="eyebrow">${esc(team.program)} · ${esc(team.session.label)} · ${esc(team.session.date)}</div>
+      <section class="cbrand">
+        <div class="cb-top"><div class="cb-club"><img src="/assets/warriors-logo.png" alt="Warragul Warriors"><span>Warragul Basketball Association<br><i>Warriors High Performance Program</i></span></div>
+          <div class="cb-partner">In partnership with<img src="/assets/msc-logo-white.png" alt="Myers Sports Coaching"></div></div>
+        <div class="eyebrow">Coaches' report · ${esc(team.session.label)} · ${esc(team.session.date)}</div>
         <h1 class="h-title">${esc(team.name)} <em>squad.</em></h1>
-        <p class="sub">${A.players.length} player${A.players.length === 1 ? "" : "s"} tested${team.notTested.length ? ` · ${team.notTested.length} not tested` : ""}. Each player is compared with their own age group (${esc(A.cmp)}). ${kindNote}</p>
+        <p class="sub">${A.players.length} player${A.players.length === 1 ? "" : "s"} tested${team.notTested.length ? ` · ${team.notTested.length} not tested` : ""} · Tested by Murray Myers, Myers Sports Coaching. ${kindNote}</p>
       </section>
+      ${summary}
 
       <section class="csec grid2">
         <div class="card profile cprof">
@@ -136,7 +178,7 @@
         </div>
       </section>
 
-      <section class="csec">
+      <section class="csec results">
         <div class="sech"><h2>Squad results</h2><span>Click a column to sort. Tests sort best first.</span></div>
         <div class="tablewrap"><table class="rtable">
           <thead><tr>${th("name", "Player")}${TESTS.map((t) => th(t.k, t.short, "tcol")).join("")}${th("type", "Athlete type")}${th("focus", "Focus")}<th>Retest goal</th></tr></thead>

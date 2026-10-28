@@ -476,7 +476,7 @@
       <div class="book"><div><img class="logo" src="/assets/msc-logo-white.png" alt="Myers Sports Coaching">
           <div class="k">Book your free chat online</div>
           <a class="url" href="https://myerssportscoaching.setmore.com" target="_blank" rel="noopener">myerssportscoaching.setmore.com</a>
-          <p>Or contact Murray: 0468 468 579 · murrayjmyers@gmail.com</p></div>
+          <p>Or contact Murray: 0468 468 579 · hpp@warragulbasketball.org.au</p></div>
         <div class="qr"><img src="/assets/qr-book.png" alt="QR code to book"><span>SCAN TO BOOK</span></div></div>
       <p class="fine">Training with MSC is optional and has no bearing on selection or court time. The Warriors High Performance Program is a joint WBA&nbsp;×&nbsp;MSC initiative, open only to Future Warriors Academy and Warriors program athletes.</p>
     </div>${foot(r, 8)}</section>`;

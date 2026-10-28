@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Admin · Warriors HPP</title>
+  <meta name="description" content="Publish testing results to the Warriors HPP report site.">
+  <link rel="icon" href="/assets/warriors-logo.png">
+  <link rel="stylesheet" href="/report.css">
+  <style>
+    .admin { max-width: 760px; margin: 40px auto 80px; padding: 0 16px; }
+    .panel-a { background: var(--cream); color: var(--ink); border-radius: 14px; padding: 30px 30px 26px; box-shadow: 0 30px 80px rgba(0,0,0,.35); }
+    .panel-a h1 { font-size: 30px; margin-bottom: 6px; color: var(--ink); }
+    .panel-a h1 em { color: var(--red); }
+    .panel-a p { font-size: 14px; line-height: 1.6; color: #3a3632; }
+    .step-a { border-top: 1px solid var(--line); padding-top: 18px; margin-top: 18px; }
+    .step-a h2 { font-size: 15px; font-weight: 800; margin: 0 0 6px; }
+    .drop { display: block; border: 2px dashed #cfc7ba; border-radius: 12px; padding: 22px; text-align: center; font-size: 13.5px; color: var(--muted); cursor: pointer; background: #fff; }
+    .drop:hover { border-color: var(--red); }
+    .drop input { display: none; }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 14px 0; }
+    .stats div { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+    .stats b { display: block; font-size: 22px; font-weight: 800; white-space: nowrap; }
+    #n-sess { font-size: 15px; line-height: 1.95; }
+    .stats span { font-size: 11px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; font-weight: 700; }
+    .bar { height: 10px; border-radius: 99px; background: var(--sand); overflow: hidden; margin: 12px 0 6px; }
+    .bar i { display: block; height: 100%; width: 0; background: var(--red); transition: width .2s; }
+    .log { font-size: 13px; color: #3a3632; min-height: 20px; }
+    .ok { color: #23804a; font-weight: 700; }
+    .row-a { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+    @media (max-width: 560px) { .stats { grid-template-columns: repeat(2, 1fr); } .panel-a { padding: 22px 18px; } }
+  </style>
+</head>
+<body class="gate" style="display:block">
+  <header class="gate-top">
+    <div class="club"><img src="/assets/warriors-logo.png" alt="Warragul Warriors"><span>Warriors HPP · Admin</span></div>
+    <img class="msc" src="/assets/msc-logo-white.png" alt="Myers Sports Coaching">
+  </header>
+  <main class="admin">
+    <div class="panel-a">
+      <div class="eyebrow">Club admin only</div>
+      <h1 class="h-title">Publish <em>results.</em></h1>
+      <p>Upload the results file to update every family's report and every coach view. Access codes don't change, and published results are live straight away.</p>
+
+      <div class="step-a" id="s1">
+        <h2>1. Admin password</h2>
+        <div class="form-error hidden" id="err" role="alert"></div>
+        <div class="field"><label for="tok">Admin password</label><input id="tok" type="password" autocomplete="current-password"></div>
+        <button class="btn" id="check" type="button">continue</button>
+      </div>
+
+      <div class="step-a hidden" id="s2">
+        <h2>2. Results file</h2>
+        <p>Choose <b>kv-bulk.json</b> (made from the testing spreadsheet).</p>
+        <label class="drop" id="drop"><input type="file" id="file" accept=".json,application/json"><span id="dropt">Tap to choose the file</span></label>
+        <div id="summary" class="hidden">
+          <div class="stats">
+            <div><b id="n-ath">0</b><span>Athletes</span></div>
+            <div><b id="n-team">0</b><span>Team views</span></div>
+            <div><b id="n-coach">0</b><span>Coach codes</span></div>
+            <div><b id="n-sess">–</b><span>Session</span></div>
+          </div>
+          <button class="btn" id="publish" type="button">publish to site</button>
+          <div class="bar"><i id="bar"></i></div>
+          <div class="log" id="log"></div>
+        </div>
+      </div>
+
+      <div class="step-a hidden" id="s3">
+        <h2>Family views</h2>
+        <p>See which families have opened their report.</p>
+        <div class="row-a"><button class="btn btn-ghost" style="color:var(--ink);border-color:var(--ink)" id="views" type="button">download views csv</button></div>
+      </div>
+    </div>
+  </main>
+  <script>
+  (function () {
+    const $ = (id) => document.getElementById(id);
+    let token = "", items = null;
+    const api = async (body) => {
+      const r = await fetch("/api/admin/upload", { method: "POST", headers: { "content-type": "application/json", authorization: "Bearer " + token }, body: JSON.stringify(body) });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(d.error || "Request failed (" + r.status + ")");
+      return d;
+    };
+    $("check").onclick = async () => {
+      token = $("tok").value.trim(); $("err").classList.add("hidden");
+      try { await api({ action: "check" }); $("s1").classList.add("hidden"); $("s2").classList.remove("hidden"); $("s3").classList.remove("hidden"); }
+      catch (e) { $("err").textContent = e.message; $("err").classList.remove("hidden"); }
+    };
+    $("file").onchange = async (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      try {
+        items = JSON.parse(await f.text());
+        if (!Array.isArray(items) || !items.some((x) => x.key === "meta:index")) throw new Error("That isn't a kv-bulk.json file.");
+        const n = (p) => items.filter((x) => x.key.startsWith(p)).length;
+        const sess = items.find((x) => x.key === "meta:session");
+        $("n-ath").textContent = n("athlete:"); $("n-team").textContent = n("team:"); $("n-coach").textContent = n("coach:");
+        $("n-sess").textContent = sess ? JSON.parse(sess.value).dateShort || "–" : "–";
+        $("dropt").textContent = f.name; $("summary").classList.remove("hidden"); $("log").textContent = ""; $("bar").style.width = "0";
+      } catch (err) { items = null; alert(err.message); }
+    };
+    $("publish").onclick = async () => {
+      if (!items) return;
+      $("publish").disabled = true;
+      try {
+        // data first, index/meta last so families never see a half-published set
+        const data = items.filter((x) => !x.key.startsWith("meta:")), meta = items.filter((x) => x.key.startsWith("meta:"));
+        const all = [...data, ...meta];
+        for (let i = 0; i < all.length; i += 50) {
+          await api({ action: "put", items: all.slice(i, i + 50) });
+          $("bar").style.width = Math.round(((i + 50) / all.length) * 90) + "%";
+          $("log").textContent = "Publishing… " + Math.min(i + 50, all.length) + " of " + all.length;
+        }
+        const fin = await api({ action: "finish", keep: items.map((x) => x.key) });
+        $("bar").style.width = "100%";
+        $("log").innerHTML = '<span class="ok">Published.</span> ' + all.length + " records live" + (fin.removed ? ", " + fin.removed + " old records removed." : ".");
+      } catch (e) { $("log").textContent = "Stopped: " + e.message + " Nothing is lost; try again."; }
+      finally { $("publish").disabled = false; }
+    };
+    $("views").onclick = async () => {
+      const r = await fetch("/api/admin/views", { headers: { authorization: "Bearer " + token } });
+      if (!r.ok) return alert("Couldn't load views.");
+      const url = URL.createObjectURL(await r.blob());
+      const a = document.createElement("a"); a.href = url; a.download = "hpp-report-views.csv"; a.click(); URL.revokeObjectURL(url);
+    };
+  })();
+  </script>
+</body>
+</html>

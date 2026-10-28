@@ -1,0 +1,9 @@
+# Never commit athlete data or the source spreadsheets
+data/
+source/
+*.xlsx
+*.csv
+# Local dev
+.wrangler/
+.dev.vars
+node_modules/

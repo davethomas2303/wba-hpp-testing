@@ -1,0 +1,92 @@
+/* Coach view: builds on report.css */
+.team-pick {
+  font: 700 11.7px "Montserrat", sans-serif; color: #fff; background: rgba(255,255,255,.08);
+  border: 1.5px solid rgba(255,255,255,.3); border-radius: 4px; padding: 10px 12px; max-width: 280px;
+}
+.team-pick option { color: var(--ink); }
+.sheet { max-width: 1180px; margin: 22px auto 60px; background: var(--cream); border-radius: 14px; padding: 44px 48px 36px; box-shadow: 0 10px 40px rgba(0,0,0,.35); }
+.csec { margin-bottom: 22px; }
+.csec.head .h-title { font-size: 38.7px; }
+.csec.head .sub { font-size: 13.2px; color: #3a3632; margin: 10px 0 0; line-height: 1.6; }
+.grid2 { display: grid; grid-template-columns: 1.45fr 1fr; gap: 16px; align-items: stretch; }
+.cprof { grid-template-columns: minmax(280px, 380px) 1fr; }
+.card .kicker { font-size: 9.2px; font-weight: 800; letter-spacing: .22em; text-transform: uppercase; color: var(--red); }
+.card h3 { font-size: 18.7px; font-weight: 800; margin: 6px 0 12px; }
+.avgs { padding: 20px 22px; }
+.atable { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11.7px; }
+.atable th { text-align: left; font-size: 8.7px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); padding: 0 6px 8px 0; border-bottom: 1px solid var(--line); }
+.atable td { padding: 11px 6px 11px 0; border-bottom: 1px solid var(--line); }
+.atable td b { font-size: 13.7px; }
+.atable .bchip { font-size: 7.7px; padding: 5px 7px; }
+.avgs .fine { margin-top: 12px; }
+.sech { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+.sech h2 { margin: 0; font-size: 18.7px; font-weight: 800; }
+.sech span { font-size: 10.7px; color: var(--muted); }
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
+.rtable { width: 100%; border-collapse: collapse; font-size: 11.7px; min-width: 860px; }
+.rtable th { background: var(--ink); color: #fff; text-align: left; font-size: 8.7px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; padding: 12px 12px; cursor: pointer; user-select: none; white-space: nowrap; }
+.rtable th.sorted { color: #ff7a7f; }
+.rtable th:last-child { cursor: default; }
+.rtable td { padding: 9px 12px; border-top: 1px solid var(--line); vertical-align: middle; }
+.rtable td.pn b { display: block; font-weight: 800; }
+.rtable td.pn span { font-size: 9.7px; color: var(--muted-2); }
+.rtable td.tc { text-align: left; width: 98px; }
+.rtable td.tc b { display: block; font-size: 13.7px; font-weight: 800; }
+.rtable td.tc span { font-size: 8.2px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.rtable td.b-building { background: #faf7f1; } .rtable td.b-building span { color: #8a8178; }
+.rtable td.b-ontrack { background: #f1ebdf; } .rtable td.b-ontrack span { color: var(--ink); }
+.rtable td.b-strong { background: #fbe4e5; } .rtable td.b-strong span { color: var(--red-deep); }
+.rtable td.b-standout { background: var(--red); color: #fff; } .rtable td.b-standout span { color: #fff; }
+.rtable td.na { color: #b9b2a6; }
+.rtable td.ty { font-weight: 700; font-size: 11.2px; }
+.rtable td.fo b { display: block; color: var(--red); font-weight: 800; }
+.rtable td.fo span { font-size: 9.7px; color: var(--muted); }
+.rtable td.go { white-space: nowrap; font-size: 11.2px; color: var(--muted); }
+.rtable td.go b { color: var(--ink); font-size: 12.7px; }
+.rtable tbody tr:hover td.pn, .rtable tbody tr:hover td.ty, .rtable tbody tr:hover td.fo, .rtable tbody tr:hover td.go { background: #fbf8f3; }
+.low .card { padding: 20px 22px; }
+.fgroup { margin-bottom: 12px; }
+.fgroup .fh { display: flex; justify-content: space-between; font-size: 12.2px; }
+.fgroup .fh span { color: var(--muted); font-size: 10.7px; font-weight: 700; }
+.fbar { height: 8px; background: var(--sand); border-radius: 99px; margin: 6px 0; overflow: hidden; }
+.fbar i { display: block; height: 100%; background: #9a928a; border-radius: 99px; }
+.fgroup.top .fbar i { background: var(--red); }
+.fgroup p { margin: 0; font-size: 10.7px; color: var(--muted); line-height: 1.5; }
+.ctip { background: var(--red-soft); border-left: 3px solid var(--red); border-radius: 10px; padding: 12px 14px; font-size: 11.2px; line-height: 1.55; margin-top: 12px; }
+.ctip b { display: block; font-size: 9.2px; letter-spacing: .16em; text-transform: uppercase; color: var(--red); margin-bottom: 3px; }
+.sp { display: grid; grid-template-columns: 110px 1fr; gap: 10px; align-items: center; margin-bottom: 10px; font-size: 11.2px; font-weight: 700; }
+.spbar { display: flex; height: 26px; border-radius: 7px; overflow: hidden; background: #f3eee6; }
+.spbar i { display: flex; align-items: center; justify-content: center; font-style: normal; font-size: 10.2px; font-weight: 800; }
+.spbar i.s-standout { background: var(--red); color: #fff; }
+.spbar i.s-strong { color: var(--red-deep); }
+.spbar em { font-style: normal; font-size: 10.2px; color: var(--muted); padding: 5px 10px; font-weight: 600; }
+.spread .bandkey { margin-top: 12px; }
+.nt { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 10.7px; color: var(--muted); line-height: 1.55; }
+.nt b { display: block; color: var(--ink); font-size: 9.2px; letter-spacing: .16em; text-transform: uppercase; margin-bottom: 3px; }
+.confid { font-size: 10.2px; color: var(--muted); text-align: center; margin: 10px 0 0; }
+
+@media (max-width: 900px) {
+  .sheet { margin: 12px; padding: 26px 18px; }
+  .grid2, .cprof { grid-template-columns: 1fr; }
+  .csec.head .h-title { font-size: 28.7px; }
+  .team-pick { max-width: 150px; }
+}
+
+@media print {
+  @page { size: A4 landscape; margin: 10mm; }
+  html, body { width: auto; }
+  .sheet { box-shadow: none; margin: 0; max-width: none; padding: 0; border-radius: 0; background: #fff; }
+  .viewer { background: #fff; }
+  .team-pick { display: none !important; }
+  .csec, .card, .rtable tr { break-inside: avoid; }
+  .tablewrap { overflow: visible; }
+  .rtable { min-width: 0; }
+}
+
+/* traffic-light bands */
+.rtable td.b-building { background: var(--tl-building-tint); } .rtable td.b-building span { color: var(--tl-building-ink); }
+.rtable td.b-ontrack  { background: var(--tl-ontrack-tint); }  .rtable td.b-ontrack span  { color: var(--tl-ontrack-ink); }
+.rtable td.b-strong   { background: var(--tl-strong-tint); }   .rtable td.b-strong span   { color: var(--tl-strong-ink); }
+.rtable td.b-standout { background: var(--tl-standout); color: #fff; } .rtable td.b-standout span { color: #fff; }
+.spbar i.s-standout { background: var(--tl-standout); color: #fff; }
+.spbar i.s-strong { color: #1a1a1a; }

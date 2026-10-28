@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Coach View · Warriors HPP</title>
+  <meta name="description" content="Warriors High Performance Program squad testing results for coaches.">
+  <link rel="icon" href="/assets/warriors-logo.png">
+  <link rel="preload" href="/fonts/montserrat-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/report.css">
+  <link rel="stylesheet" href="/coach.css">
+</head>
+<body>
+
+  <main class="gate" id="gate">
+    <header class="gate-top">
+      <div class="club">
+        <img src="/assets/warriors-logo.png" alt="Warragul Warriors">
+        <span>#WarriorSpirit · est. 1967</span>
+      </div>
+      <img class="msc" src="/assets/msc-logo-white.png" alt="Myers Sports Coaching">
+    </header>
+    <section class="gate-main">
+      <div>
+        <div class="pill">
+          <svg viewBox="0 0 24 24" stroke-width="2"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg>
+          Warriors High Performance Program · Coaches
+        </div>
+        <h1 class="h-title">Squad testing <em>view.</em></h1>
+        <p class="lede">Your squad's results from testing day: the team's athletic profile, every player's results and bands, and where each player's training focus sits, so you can plan sessions around it.</p>
+      </div>
+      <form class="access-card" id="access" autocomplete="off" novalidate>
+        <div class="eyebrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+          Coaches only
+        </div>
+        <h2 class="h-title">Open your <em>squad.</em></h2>
+        <p class="help">Enter the coach code the club sent you for your team.</p>
+        <div class="form-error hidden" id="err" role="alert"></div>
+        <div class="field">
+          <label for="code">Coach code</label>
+          <input id="code" name="code" class="code" type="password" autocomplete="off" spellcheck="false" required placeholder="XXXX-XXXX">
+        </div>
+        <button class="btn" type="submit" id="go">open squad
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+        <p class="access-foot">Player results are private to each family. Please use them for planning training only and don't share them outside the coaching group.</p>
+      </form>
+    </section>
+    <p class="gate-legal">Warragul Basketball Association × Myers Sports Coaching · Warriors High Performance Program</p>
+  </main>
+
+  <div class="viewer hidden" id="viewer">
+    <div class="toolbar">
+      <div class="who">
+        <img src="/assets/warriors-logo.png" alt="">
+        <div><b id="who-name"></b><span id="who-sub"></span></div>
+      </div>
+      <div class="actions">
+        <select id="team-pick" class="team-pick hidden" aria-label="Choose team"></select>
+        <button class="btn btn-ghost" id="close" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+          <span class="lbl-long">close</span>
+        </button>
+        <button class="btn" id="pdf" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9V3h12v6M6 18H4v-7h16v7h-2M8 14h8v7H8z"/></svg>
+          print
+        </button>
+      </div>
+    </div>
+    <div class="sheet" id="sheet"></div>
+  </div>
+
+  <script src="/hpp-core.js"></script>
+  <script src="/coach.js"></script>
+</body>
+</html>

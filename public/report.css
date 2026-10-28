@@ -673,3 +673,126 @@ ul.creds li svg { width: 15px; height: 15px; flex: 0 0 15px; stroke: var(--red);
 .refresher span { display: block; font-size: 11.2px; line-height: 1.5; color: var(--muted); }
 .refresher .dl { flex: 0 0 auto; font-size: 10.5px; font-weight: 800; letter-spacing: .14em; text-transform: lowercase; color: #fff; background: var(--red); border-radius: 4px; padding: 10px 14px; }
 .refresher span b.url { display: inline; font-size: inherit; font-weight: 700; color: var(--ink); margin: 0; white-space: nowrap; }
+
+/* =====================================================================
+   MOBILE
+   ===================================================================== */
+/* stop iOS/Android enlarging "small" text inside the scaled A4 pages */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+.page-holder { overflow: hidden; flex: 0 0 auto; }
+.page-holder > .page { transform-origin: 0 0; }
+@media (max-width: 640px) {
+  .toolbar { padding: 8px 10px; gap: 8px; }
+  .toolbar .who b { font-size: 13px; }
+  .toolbar .who span { font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 42vw; }
+  .toolbar .actions { gap: 6px; }
+  .toolbar .btn { padding: 10px 11px; font-size: 11px; }
+  .pdf-tip { font-size: 11.5px; margin-top: 12px; }
+  .pages { padding: 14px 12px 40px; gap: 14px; }
+}
+@media print {
+  .page-holder { overflow: visible; }
+  .page-holder > .page { transform: none !important; }
+}
+
+/* =====================================================================
+   PHONE REFLOW (screen only, < 700px). Print / Save PDF keeps the A4 layout.
+   ===================================================================== */
+@media screen and (max-width: 699px) {
+  .pages { padding: 12px 10px 40px; gap: 12px; }
+  .page-holder { width: 100% !important; height: auto !important; overflow: visible; }
+  .page { width: 100%; height: auto; padding: 30px 18px 0; border-radius: 10px; box-shadow: 0 6px 24px rgba(0,0,0,.3); }
+  .page-body { flex: none; }
+  .page-foot { margin-top: 26px; padding: 12px 0 16px; font-size: 8.5px; gap: 8px; flex-wrap: wrap; }
+  .page-foot img.msc { height: 13px; }
+  .sec-head { margin-bottom: 16px; }
+  .sec-head .h-title { font-size: 30px; }
+  .sec-intro { font-size: 14px; }
+
+  /* every grid to one column (band cards and bag list to two) */
+  .result-grid, .two, .paths, .gd-grid, .specs, .offers, ul.creds, .goal { grid-template-columns: 1fr; }
+  .bandrow { grid-template-columns: 1fr 1fr; }
+  .bag ul { grid-template-columns: 1fr 1fr; }
+
+  /* cover */
+  .cover { padding: 0; overflow: hidden; }
+  .cover-top { height: auto; padding: 28px 20px 34px; }
+  .cover-top .rings { width: 420px; height: 420px; right: -200px; top: 10px; }
+  .cover-brand { flex-direction: column; gap: 16px; }
+  .cover-brand .partner { text-align: left; }
+  .cover-brand .partner img { margin: 6px 0 0; width: 170px; }
+  .cover-title { position: static; margin-top: 70px; }
+  .cover-title .pill { font-size: 8.5px; letter-spacing: .14em; }
+  .cover-title .h-title { font-size: 42px; }
+  .cover-title .h-title em { font-size: 44px; }
+  .cover-title p { font-size: 14px; }
+  .cover-band { margin: 0 20px; }
+  .cover-bottom { grid-template-columns: 1fr; gap: 18px; padding: 22px 20px 6px; }
+  .cover-logo img { width: 150px; }
+  .cover .page-foot { margin: 0 20px; }
+
+  /* results */
+  .rcard .val b { font-size: 38px; }
+  .sits-head { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .scales { padding: 14px 16px 2px; }
+
+  /* profile */
+  .profile { grid-template-columns: 1fr; padding: 8px 16px 18px; }
+  .ptype h3 { font-size: 24px; }
+  .ptype p { font-size: 14px; }
+
+  /* meaning: table scrolls sideways rather than squashing */
+  .qtable { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .qtable tbody, .qtable thead { display: table; width: 560px; table-layout: fixed; }
+  .callout { flex-direction: column; gap: 10px; }
+
+  /* pathway + timeline runs down the page */
+  .tl { grid-template-columns: 1fr; gap: 14px; }
+  .tl::before { left: 7px; right: auto; top: 8px; bottom: 8px; width: 2px; height: auto; }
+  .tl::after { left: 7px; top: 8px; width: 2px; height: calc((100% - 56px) / 5 * var(--prog, 0)); }
+  .tl .t { display: grid; grid-template-columns: 30px 1fr; column-gap: 0; }
+  .tl .t i { grid-row: span 3; margin: 0; }
+  .tl .t p { grid-column: 2; }
+
+  /* game day */
+  .refresher { flex-wrap: wrap; }
+  .refresher .dl { width: 100%; text-align: center; }
+
+  /* coach page */
+  .coach-top { min-height: 0; padding: 30px 20px 210px; }
+  .coach-top > div { max-width: none; }
+  .coach-top .h-title { font-size: 34px; }
+  .coach-top .cutout { height: 200px; right: 50%; transform: translateX(50%); }
+  .coach-body { padding: 22px 18px 0; }
+  .coach .page-foot { margin: 0 18px; }
+  .msc-strip { flex-direction: column; align-items: flex-start; gap: 10px; }
+
+  /* plan */
+  .start { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .offers { grid-template-rows: none; }
+  .offer { grid-row: auto; grid-template-rows: none; }
+  .rr { flex-direction: column; align-items: flex-start; }
+  .rr .pp { text-align: left; }
+  .book { flex-direction: column; align-items: flex-start; }
+  .book .qr { display: none; }
+}
+
+@media screen and (max-width: 699px) {
+  .page.coach { padding: 0; }
+  .coach-top { border-radius: 10px 10px 0 0; }
+  .page-foot { flex-wrap: nowrap; }
+  .page-foot .ft { display: none; }
+  .page-foot img.msc { margin-left: auto; }
+  /* sports table becomes one card per quality */
+  .qtable { display: block; overflow: visible; border: 0; background: transparent; }
+  .qtable tbody { display: block; width: auto; }
+  .qtable tr:first-child { display: none; }
+  .qtable tr { display: block; background: #fff; border: 1px solid var(--line); border-radius: 12px; margin-bottom: 10px; overflow: hidden; }
+  .qtable td { display: block; width: auto !important; border-top: 1px solid var(--line); padding: 9px 14px; font-size: 13px; }
+  .qtable td:first-child { border-top: 0; background: var(--ink); color: #fff; }
+  .qtable td:first-child b { color: #fff; display: inline; margin-right: 6px; }
+  .qtable td:first-child span { color: rgba(255,255,255,.6); }
+  .qtable td[data-label]::before { content: attr(data-label); display: block; font-size: 9.5px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: var(--red); margin-bottom: 2px; }
+  .qtable tr.hl td:first-child { background: var(--red); box-shadow: none; }
+  .rr .k { line-height: 2; }
+}

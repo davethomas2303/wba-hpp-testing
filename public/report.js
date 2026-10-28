@@ -147,7 +147,7 @@
   const TOTAL = 8;
   const foot = (r, n) => `
     <div class="page-foot"><img src="/assets/warriors-logo.png" alt="">
-      Warriors High Performance Program · ${esc(r.name)}<img class="msc" src="/assets/msc-logo-dark.png" alt="Myers Sports Coaching"><b>${n} / ${TOTAL}</b></div>`;
+      <span class="ft">Warriors High Performance Program · ${esc(r.name)}</span><img class="msc" src="/assets/msc-logo-dark.png" alt="Myers Sports Coaching"><b>${n} / ${TOTAL}</b></div>`;
   const head = (eyebrow, title, em) => `
     <div class="sec-head"><div class="eyebrow">${eyebrow}</div>
       <h2 class="h-title">${title} <em>${em}</em></h2><div class="rule"></div></div>`;
@@ -307,9 +307,9 @@
       <h3 class="sub-h">Why these qualities matter in every sport</h3>
       <table class="qtable">
         <tr><th>Quality</th><th>Basketball</th><th>AFL</th><th>Cricket &amp; others</th></tr>
-        <tr${hl(["vj", "bj"])}><td><b>Power</b><span>Vertical &amp; broad jump</span></td><td>Rebounding, finishing at the rim, contesting shots</td><td>Marking contests, ruck work, bursting from a stoppage</td><td>Fast-bowling run-up, netball and volleyball jumps</td></tr>
-        <tr${hl(["sprint"])}><td><b>Speed</b><span>20 m sprint</span></td><td>First step past a defender, running the floor in transition</td><td>Leading to space, breaking away from a pack</td><td>Running between wickets, soccer and hockey breaks</td></tr>
-        <tr${hl(["yoyo"])}><td><b>Repeat-effort fitness</b><span>Yo-Yo test</span></td><td>Staying sharp in the last quarter and game four of a tournament</td><td>Running out four quarters, repeat efforts to contests</td><td>Long fielding sessions, soccer, athletics</td></tr>
+        <tr${hl(["vj", "bj"])}><td><b>Power</b><span>Vertical &amp; broad jump</span></td><td data-label="Basketball">Rebounding, finishing at the rim, contesting shots</td><td data-label="AFL">Marking contests, ruck work, bursting from a stoppage</td><td data-label="Cricket &amp; others">Fast-bowling run-up, netball and volleyball jumps</td></tr>
+        <tr${hl(["sprint"])}><td><b>Speed</b><span>20 m sprint</span></td><td data-label="Basketball">First step past a defender, running the floor in transition</td><td data-label="AFL">Leading to space, breaking away from a pack</td><td data-label="Cricket &amp; others">Running between wickets, soccer and hockey breaks</td></tr>
+        <tr${hl(["yoyo"])}><td><b>Repeat-effort fitness</b><span>Yo-Yo test</span></td><td data-label="Basketball">Staying sharp in the last quarter and game four of a tournament</td><td data-label="AFL">Running out four quarters, repeat efforts to contests</td><td data-label="Cricket &amp; others">Long fielding sessions, soccer, athletics</td></tr>
       </table>
       <div class="callout"><div class="ico">${svg("globe")}</div><div>
         <h4>Plays other sports too? Good.</h4>
@@ -493,10 +493,27 @@
   }
 
   // Scale the A4 pages down to fit phones (print is always full size).
+  // Scale the A4 pages down to fit phones with a transform (consistent in Safari and Chrome).
+  // Print always uses full-size pages.
+  const PHONE = 700; // below this width the report reflows (see report.css "PHONE REFLOW")
   function fit() {
-    const w = Math.min(1, (window.innerWidth - 24) / 794);
+    const vw = document.documentElement.clientWidth;
+    if (vw < PHONE) { unfit(); return; }
+    const s = Math.min(1, (vw - 24) / 794);
     document.querySelectorAll(".page-holder").forEach((h) => {
-      h.style.zoom = w < 1 ? String(w) : "";
+      const pg = h.firstElementChild;
+      if (s < 1) {
+        h.style.width = 794 * s + "px";
+        h.style.height = 1123 * s + "px";
+        pg.style.transform = `scale(${s})`;
+      } else {
+        h.style.width = h.style.height = pg.style.transform = "";
+      }
+    });
+  }
+  function unfit() {
+    document.querySelectorAll(".page-holder").forEach((h) => {
+      h.style.width = h.style.height = h.firstElementChild.style.transform = "";
     });
   }
   window.addEventListener("resize", fit);
@@ -554,6 +571,6 @@
     try { await document.fonts.ready; } catch (_) {}
     window.print();
   });
-  window.addEventListener("beforeprint", () => document.querySelectorAll(".page-holder").forEach((h) => (h.style.zoom = "")));
+  window.addEventListener("beforeprint", unfit);
   window.addEventListener("afterprint", fit);
 })();

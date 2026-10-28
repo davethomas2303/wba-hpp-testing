@@ -41,13 +41,13 @@ for f in fam.values():
     txt = "\n\n".join([f"Hi {f['parent']},", intro, f"View the report: {URL}\n{lines_txt}",
         covers + f" You can save it as a PDF or print it from the page. Murray's seminar refresher is there too, or at {URL}/refresher.",
         *([coachline] if coachline else []),
-        keep + " If you have any questions, or would like a free 15-minute results chat with Murray, email hpp@warragulbasketball.org.au.",
+        keep + " To book a free 15-minute results chat with Murray, use the booking link in the report: myerssportscoaching.setmore.com. For any other questions, email hpp@warragulbasketball.org.au.",
         "Warragul Basketball Association\nWarriors High Performance Program"])
     htm = (f"<p>Hi {html.escape(f['parent'])},</p><p>{html.escape(intro, quote=False)}</p>"
            f"<p><b>View the report:</b> <a href=\"{URL}\">wba-hpp-testing.pages.dev</a></p><ul>{lines_html}</ul>"
            f"<p>{html.escape(covers, quote=False)} You can save it as a PDF or print it from the page. Murray's seminar refresher is there too, or at <a href=\"{URL}/refresher\">wba-hpp-testing.pages.dev/refresher</a>.</p>"
            + (f"<p>{html.escape(coachline, quote=False)}</p>" if coachline else "")
-           + f"<p>{html.escape(keep, quote=False)} If you have any questions, or would like a free 15-minute results chat with Murray, email <a href=\"mailto:hpp@warragulbasketball.org.au\">hpp@warragulbasketball.org.au</a>.</p>"
+           + f"<p>{html.escape(keep, quote=False)} To book a free 15-minute results chat with Murray, use the booking link in the report: <a href=\"https://myerssportscoaching.setmore.com\">myerssportscoaching.setmore.com</a>. For any other questions, email <a href=\"mailto:hpp@warragulbasketball.org.au\">hpp@warragulbasketball.org.au</a>.</p>"
            "<p>Warragul Basketball Association<br>Warriors High Performance Program</p>")
     rows.append({"Parent": f["parent_full"], "Parent first name": f["parent"], "Email": f["email"], "Mobile": f["mobile"],
                  "Athletes": "; ".join(k["name"] for k in kids), "Codes": "; ".join(f"{k['first']}: {k['surname']} / {k['code']}" for k in kids),

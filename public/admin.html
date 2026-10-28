@@ -101,23 +101,33 @@
         $("dropt").textContent = f.name; $("summary").classList.remove("hidden"); $("log").textContent = ""; $("bar").style.width = "0";
       } catch (err) { items = null; alert(err.message); }
     };
+    const putWithRetry = async (batch) => {
+      let last;
+      for (let attempt = 1; attempt <= 4; attempt++) {
+        try { return await api({ action: "put", items: batch }); }
+        catch (e) { last = e; await new Promise((r) => setTimeout(r, 800 * attempt)); }
+      }
+      throw last;
+    };
     $("publish").onclick = async () => {
       if (!items) return;
       $("publish").disabled = true;
+      window.onbeforeunload = () => "Publishing is still running.";
       try {
         // data first, index/meta last so families never see a half-published set
         const data = items.filter((x) => !x.key.startsWith("meta:")), meta = items.filter((x) => x.key.startsWith("meta:"));
-        const all = [...data, ...meta];
-        for (let i = 0; i < all.length; i += 50) {
-          await api({ action: "put", items: all.slice(i, i + 50) });
-          $("bar").style.width = Math.round(((i + 50) / all.length) * 90) + "%";
-          $("log").textContent = "Publishing… " + Math.min(i + 50, all.length) + " of " + all.length;
+        const all = [...data, ...meta], B = 20;
+        for (let i = 0; i < all.length; i += B) {
+          await putWithRetry(all.slice(i, i + B));
+          const done = Math.min(i + B, all.length);
+          $("bar").style.width = Math.round((done / all.length) * 95) + "%";
+          $("log").textContent = "Publishing… " + done + " of " + all.length + ". Keep this page open.";
         }
         const fin = await api({ action: "finish", keep: items.map((x) => x.key) });
         $("bar").style.width = "100%";
         $("log").innerHTML = '<span class="ok">Published.</span> ' + all.length + " records live" + (fin.removed ? ", " + fin.removed + " old records removed." : ".");
-      } catch (e) { $("log").textContent = "Stopped: " + e.message + " Nothing is lost; try again."; }
-      finally { $("publish").disabled = false; }
+      } catch (e) { $("log").textContent = "Stopped: " + e.message + " Nothing is lost. Click publish again to finish."; }
+      finally { $("publish").disabled = false; window.onbeforeunload = null; }
     };
     $("views").onclick = async () => {
       const r = await fetch("/api/admin/views", { headers: { authorization: "Bearer " + token } });
